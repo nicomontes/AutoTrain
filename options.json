@@ -1,0 +1,40 @@
+{
+  "go" : {
+    "usual_from": "paris",
+    "usual_to": "st-etienne",
+    "from_option" : [],
+    "to_option" : [
+      "lyon"
+    ],
+    "usual_departure_time_min": "18:00",
+    "usual_departure_time_max": "21:00",
+    "usual_day": "Fri"
+  },
+  "return" : {
+    "usual_from": "st-etienne",
+    "usual_to": "paris",
+    "from_option" : [
+      "lyon"
+    ],
+    "to_option" : [],
+    "usual_departure_time_min": "18:00",
+    "usual_departure_time_max": "21:00",
+    "usual_day": "Sun"
+  },
+  "special_trip": [
+    {
+      "date": "2017-04-22",
+      "from": "paris",
+      "to": "st-etienne",
+      "time_min": "17:00",
+      "time_max": "23:00"
+    },
+    {
+      "date": "2017-02-19",
+      "from": "paris",
+      "to": "marseille",
+      "time_min": "12:00",
+      "time_max": "13:00"
+    }
+  ]
+}
