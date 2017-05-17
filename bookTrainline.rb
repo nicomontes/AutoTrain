@@ -73,19 +73,19 @@ def connect_me (account, password, pin)
 	
 	# Set Google account informations in popup windows
 	$browser.window(:index => 1).use do
-		$browser.text_field(:id => 'Email').set account
-		$browser.button(:id => 'next').click
-		
-		$browser.text_field(:id => 'Passwd').set password
-		$browser.button(:id => 'signIn').click
+		$browser.text_field(:id => 'identifierId').set account
+		$browser.div(:id => 'identifierNext').click
+
+		$browser.text_field(:name => 'password').set password
+		$browser.div(:id => 'passwordNext').click
 		
 		$totp = ROTP::TOTP.new(pin)
 		
 		$totpPin = $totp.now.to_s
 		$browser.text_field(:id => 'totpPin').set $totpPin
 		$browser.button(:id => 'submit').click
-	end
-	
+		sleep 5
+	end	
 end
 
 
