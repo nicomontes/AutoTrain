@@ -21,11 +21,14 @@ $browser.goto "https://www.trainline.fr/search/"
 $moreDays = 30
 
 puts Date.today.to_s + " + 30 days => " + Date.today.next_day($moreDays).to_s
+File.open("run.log", 'a') {|f| f.write(Date.today.to_s + " + 30 days => " + Date.today.next_day($moreDays).to_s + "\n") }
 
 # Method to buy ticket on trainline
 def buy_ticket (from, to, timeMin, timeMax)
 	# Go to search page
 	$browser.goto "https://www.trainline.fr/search/"+from+"/"+to+"/"+Date.today.next_day($moreDays).to_s+"-"+timeMin.to_s+":00"
+	puts "Search ticket from : "+from+" to : "+to
+	File.open("run.log", 'a') {|f| f.write("Search ticket from : " + from + " to : "+ to + "\n") }
 	
 	# click on button search
 	$browser.button(:class => 'button progress-button--button').click
@@ -52,11 +55,14 @@ def buy_ticket (from, to, timeMin, timeMax)
 				sleep 2
 				$browser.button(:type => 'submit').click
 				puts "Pay ticket from "+from+" to "+to
+				File.open("run.log", 'a') {|f| f.write("Pay ticket from " + from + " to " + to + "\n") }
 				sleep 5
 				return true
 			end
 		end
 	end
+	puts "No ticket find from : "+from+" to : "+to
+	File.open("run.log", 'a') {|f| f.write("No ticket find from : " + from + " to : " + to + "\n") }
 	return false
 end
 
