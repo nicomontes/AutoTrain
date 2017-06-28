@@ -23,10 +23,10 @@ $browser.goto "https://www.trainline.fr/search/"
 $moreDays = 30
 $moreDays2 = 3
 
-puts Date.today.to_s + " + " + $moreDays.to_s + " days => " + Date.today.next_day($moreDays).strftime('%a') + " " + Date.today.next_day($moreDays).to_s
-puts Date.today.to_s + " + " + $moreDays2.to_s + " days => " + Date.today.next_day($moreDays2).strftime('%a') + " " + Date.today.next_day($moreDays2).to_s
-File.open("run.log", 'a') {|f| f.write(Date.today.to_s + " + " + $moreDays.to_s + " days => " + Date.today.next_day($moreDays).strftime('%a') + " " + Date.today.next_day($moreDays).to_s + "\n") }
-File.open("run.log", 'a') {|f| f.write(Date.today.to_s + " + " + $moreDays2.to_s + " days => " + Date.today.next_day($moreDays2).strftime('%a') + " " + Date.today.next_day($moreDays2).to_s + "\n") }
+puts Time.now.to_s + " + " + $moreDays.to_s + " days => " + Date.today.next_day($moreDays).strftime('%a') + " " + Date.today.next_day($moreDays).to_s
+puts Time.now.to_s + " + " + $moreDays2.to_s + " days => " + Date.today.next_day($moreDays2).strftime('%a') + " " + Date.today.next_day($moreDays2).to_s
+File.open("run.log", 'a') {|f| f.write(Time.now.to_s + " + " + $moreDays.to_s + " days => " + Date.today.next_day($moreDays).strftime('%a') + " " + Date.today.next_day($moreDays).to_s + "\n") }
+File.open("run.log", 'a') {|f| f.write(Time.now.to_s + " + " + $moreDays2.to_s + " days => " + Date.today.next_day($moreDays2).strftime('%a') + " " + Date.today.next_day($moreDays2).to_s + "\n") }
 
 # Method to buy ticket on trainline
 def buy_ticket (from, to, timeMin, timeMax)
