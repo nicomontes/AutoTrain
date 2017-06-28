@@ -19,6 +19,7 @@ $browser.goto "https://www.trainline.fr/search/"
 
 # We can book a train 30 days before start
 $moreDays = 30
+$moreDays2 = 3
 
 puts Date.today.to_s + " + 30 days => " + Date.today.next_day($moreDays).to_s
 File.open("run.log", 'a') {|f| f.write(Date.today.to_s + " + 30 days => " + Date.today.next_day($moreDays).to_s + "\n") }
@@ -97,7 +98,7 @@ end
 
 
 # For go
-if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"]
+if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"] || Date.today.next_day($moreDays2).strftime('%a') == $jsonFile["go"]["usual_day"]
 	
 	connect_me ENV["GoogleEmail"], ENV["GooglePassword"], ENV["GooglePin"]
 	
@@ -121,7 +122,7 @@ if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"]
 		end
 	end
 # For return
-elsif Date.today.next_day($moreDays).strftime('%a') == $jsonFile["return"]["usual_day"]
+elsif Date.today.next_day($moreDays).strftime('%a') == $jsonFile["return"]["usual_day"] || Date.today.next_day($moreDays2).strftime('%a') == $jsonFile["return"]["usual_day"]
 	
 	connect_me ENV["GoogleEmail"], ENV["GooglePassword"], ENV["GooglePin"]
 	
@@ -149,7 +150,7 @@ elsif Date.today.next_day($moreDays).strftime('%a') == $jsonFile["return"]["usua
 else 
 	
 	$jsonFile["special_trip"].each do |trip|
-		if Date.today.next_day($moreDays).strftime('%Y-%m-%d') == trip["date"]
+		if Date.today.next_day($moreDays).strftime('%Y-%m-%d') == trip["date"] || Date.today.next_day($moreDays2).strftime('%Y-%m-%d') == trip["date"]
 			connect_me ENV["GoogleEmail"], ENV["GooglePassword"], ENV["GooglePin"]
 			sleep 5
 			buy_ticket trip["from"], trip["to"], trip["time_min"], trip["time_max"]
