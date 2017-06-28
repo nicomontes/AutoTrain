@@ -13,6 +13,8 @@ file.close
 # Create json hash
 $jsonFile = JSON.parse(json_file)
 
+File.open("run.log", 'a') {|f| f.write("Open browser" + "\n") }
+
 # Open browser and go to trainline website
 $browser = Watir::Browser.new :chrome
 $browser.goto "https://www.trainline.fr/search/"
@@ -21,15 +23,22 @@ $browser.goto "https://www.trainline.fr/search/"
 $moreDays = 30
 $moreDays2 = 3
 
-puts Date.today.to_s + " + 30 days => " + Date.today.next_day($moreDays).to_s
-File.open("run.log", 'a') {|f| f.write(Date.today.to_s + " + 30 days => " + Date.today.next_day($moreDays).to_s + "\n") }
+puts Date.today.to_s + " + " + $moreDays.to_s + " days => " + Date.today.next_day($moreDays).strftime('%a') + " " + Date.today.next_day($moreDays).to_s
+puts Date.today.to_s + " + " + $moreDays2.to_s + " days => " + Date.today.next_day($moreDays2).strftime('%a') + " " + Date.today.next_day($moreDays2).to_s
+File.open("run.log", 'a') {|f| f.write(Date.today.to_s + " + " + $moreDays.to_s + " days => " + Date.today.next_day($moreDays).strftime('%a') + " " + Date.today.next_day($moreDays).to_s + "\n") }
+File.open("run.log", 'a') {|f| f.write(Date.today.to_s + " + " + $moreDays2.to_s + " days => " + Date.today.next_day($moreDays2).strftime('%a') + " " + Date.today.next_day($moreDays2).to_s + "\n") }
 
 # Method to buy ticket on trainline
 def buy_ticket (from, to, timeMin, timeMax)
 	# Go to search page
-	$browser.goto "https://www.trainline.fr/search/"+from+"/"+to+"/"+Date.today.next_day($moreDays).to_s+"-"+timeMin.to_s+":00"
+	if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"]
+		$browser.goto "https://www.trainline.fr/search/"+from+"/"+to+"/"+Date.today.next_day($moreDays).to_s+"-"+timeMin.to_s+":00"
+	elsif Date.today.next_day($moreDays2).strftime('%a') == $jsonFile["go"]["usual_day"]
+		$browser.goto "https://www.trainline.fr/search/"+from+"/"+to+"/"+Date.today.next_day($moreDays2).to_s+"-"+timeMin.to_s+":00"
+	end
+	
 	puts "Search ticket from : "+from+" to : "+to
-	File.open("run.log", 'a') {|f| f.write("Search ticket from : " + from + " to : "+ to + "\n") }
+	File.open("run.log", 'a') {|f| f.write("Search ticket from " + from + " to "+ to + "\n") }
 	
 	# click on button search
 	$browser.button(:class => 'button progress-button--button').click
@@ -63,7 +72,7 @@ def buy_ticket (from, to, timeMin, timeMax)
 		end
 	end
 	puts "No ticket find from : "+from+" to : "+to
-	File.open("run.log", 'a') {|f| f.write("No ticket find from : " + from + " to : " + to + "\n") }
+	File.open("run.log", 'a') {|f| f.write("No ticket find from " + from + " to " + to + "\n") }
 	return false
 end
 
@@ -100,16 +109,20 @@ end
 # For go
 if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"] || Date.today.next_day($moreDays2).strftime('%a') == $jsonFile["go"]["usual_day"]
 	
+	File.open("run.log", 'a') {|f| f.write("Connection with " + ENV["GoogleEmail"] + "\n") }
+		
 	connect_me ENV["GoogleEmail"], ENV["GooglePassword"], ENV["GooglePin"]
 	
 	sleep 5
 	
-	buyOne = buy_ticket $jsonFile["go"]["usual_from"], $jsonFile["go"]["usual_to"], $jsonFile["go"]["usual_departure_time_min"], $jsonFile["go"]["usual_departure_time_max"]
+	File.open("run.log", 'a') {|f| f.write("Try to buy one ticket" + "\n") }
+	
+		buyOne = buy_ticket $jsonFile["go"]["usual_from"], $jsonFile["go"]["usual_to"], $jsonFile["go"]["usual_departure_time_min"], $jsonFile["go"]["usual_departure_time_max"]
 	
 	if $jsonFile["go"]["from_option"][0]
 		$jsonFile["go"]["from_option"].each do |from|
 			if buyOne == false
-				buyOne = buyOne = buy_ticket from, $jsonFile["go"]["usual_to"], $jsonFile["go"]["usual_departure_time_min"], $jsonFile["go"]["usual_departure_time_max"]
+				buyOne = buy_ticket from, $jsonFile["go"]["usual_to"], $jsonFile["go"]["usual_departure_time_min"], $jsonFile["go"]["usual_departure_time_max"]
 			end
 		end
 	end
@@ -117,23 +130,27 @@ if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"]
 	if $jsonFile["go"]["to_option"][0]
 		$jsonFile["go"]["to_option"].each do |to|
 			if buyOne == false
-				buyOne = buyOne = buy_ticket $jsonFile["go"]["usual_from"], to, $jsonFile["go"]["usual_departure_time_min"], $jsonFile["go"]["usual_departure_time_max"]
+				buyOne = buy_ticket $jsonFile["go"]["usual_from"], to, $jsonFile["go"]["usual_departure_time_min"], $jsonFile["go"]["usual_departure_time_max"]
 			end
 		end
 	end
 # For return
 elsif Date.today.next_day($moreDays).strftime('%a') == $jsonFile["return"]["usual_day"] || Date.today.next_day($moreDays2).strftime('%a') == $jsonFile["return"]["usual_day"]
 	
+	File.open("run.log", 'a') {|f| f.write("Connection with " + ENV["GoogleEmail"] + "\n") }
+	
 	connect_me ENV["GoogleEmail"], ENV["GooglePassword"], ENV["GooglePin"]
 	
 	sleep 5
+	
+	File.open("run.log", 'a') {|f| f.write("Try to buy one ticket" + "\n") }
 	
 	buyOne = buy_ticket $jsonFile["return"]["usual_from"], $jsonFile["return"]["usual_to"], $jsonFile["return"]["usual_departure_time_min"], $jsonFile["return"]["usual_departure_time_max"]
 	
 	if $jsonFile["return"]["from_option"][0]
 		$jsonFile["return"]["from_option"].each do |from|
 			if buyOne == false
-				buyOne = buyOne = buy_ticket from, $jsonFile["return"]["usual_to"], $jsonFile["return"]["usual_departure_time_min"], $jsonFile["return"]["usual_departure_time_max"]
+				buyOne = buy_ticket from, $jsonFile["return"]["usual_to"], $jsonFile["return"]["usual_departure_time_min"], $jsonFile["return"]["usual_departure_time_max"]
 			end
 		end
 	end
@@ -141,7 +158,7 @@ elsif Date.today.next_day($moreDays).strftime('%a') == $jsonFile["return"]["usua
 	if $jsonFile["return"]["to_option"][0]
 		$jsonFile["return"]["to_option"].each do |to|
 			if buyOne == false
-				buyOne = buyOne = buy_ticket $jsonFile["return"]["usual_from"], to, $jsonFile["return"]["usual_departure_time_min"], $jsonFile["return"]["usual_departure_time_max"]
+				buyOne = buy_ticket $jsonFile["return"]["usual_from"], to, $jsonFile["return"]["usual_departure_time_min"], $jsonFile["return"]["usual_departure_time_max"]
 			end
 		end
 	end
@@ -151,8 +168,15 @@ else
 	
 	$jsonFile["special_trip"].each do |trip|
 		if Date.today.next_day($moreDays).strftime('%Y-%m-%d') == trip["date"] || Date.today.next_day($moreDays2).strftime('%Y-%m-%d') == trip["date"]
+			
+			File.open("run.log", 'a') {|f| f.write("It's for a special trip !" + "\n") }
+			
 			connect_me ENV["GoogleEmail"], ENV["GooglePassword"], ENV["GooglePin"]
+			
 			sleep 5
+			
+			File.open("run.log", 'a') {|f| f.write("Try to buy one ticket" + "\n") }
+			
 			buy_ticket trip["from"], trip["to"], trip["time_min"], trip["time_max"]
 		end
 	end
@@ -160,3 +184,5 @@ else
 end
 
 $browser.close
+
+File.open("run.log", 'a') {|f| f.write("Close browser" + "\n") }
