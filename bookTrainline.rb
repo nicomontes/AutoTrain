@@ -23,8 +23,6 @@ $browser.goto "https://www.trainline.fr/search/"
 $moreDays = 30
 $moreDays2 = 3
 
-puts Time.now.to_s + " + " + $moreDays.to_s + " days => " + Date.today.next_day($moreDays).strftime('%a') + " " + Date.today.next_day($moreDays).to_s
-puts Time.now.to_s + " + " + $moreDays2.to_s + " days => " + Date.today.next_day($moreDays2).strftime('%a') + " " + Date.today.next_day($moreDays2).to_s
 File.open("run.log", 'a') {|f| f.write(Time.now.to_s + " + " + $moreDays.to_s + " days => " + Date.today.next_day($moreDays).strftime('%a') + " " + Date.today.next_day($moreDays).to_s + "\n") }
 File.open("run.log", 'a') {|f| f.write(Time.now.to_s + " + " + $moreDays2.to_s + " days => " + Date.today.next_day($moreDays2).strftime('%a') + " " + Date.today.next_day($moreDays2).to_s + "\n") }
 
@@ -37,7 +35,6 @@ def buy_ticket (from, to, timeMin, timeMax)
 		$browser.goto "https://www.trainline.fr/search/"+from+"/"+to+"/"+Date.today.next_day($moreDays2).to_s+"-"+timeMin.to_s+":00"
 	end
 	
-	puts "Search ticket from : "+from+" to : "+to
 	File.open("run.log", 'a') {|f| f.write("Search ticket from " + from + " to "+ to + "\n") }
 	
 	# click on button search
@@ -64,14 +61,12 @@ def buy_ticket (from, to, timeMin, timeMax)
 				$browser.span(:class => 'ember-view checkbox checkbox--custom required').click
 				sleep 2
 				$browser.button(:type => 'submit').click
-				puts "Pay ticket from "+from+" to "+to
 				File.open("run.log", 'a') {|f| f.write("Pay ticket from " + from + " to " + to + "\n") }
 				sleep 5
 				return true
 			end
 		end
 	end
-	puts "No ticket find from : "+from+" to : "+to
 	File.open("run.log", 'a') {|f| f.write("No ticket find from " + from + " to " + to + "\n") }
 	return false
 end
