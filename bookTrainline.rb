@@ -104,7 +104,7 @@ end
 # For go
 if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"] || Date.today.next_day($moreDays2).strftime('%a') == $jsonFile["go"]["usual_day"]
 	
-	File.open("run.log", 'a') {|f| f.write("Connection with " + ENV["GoogleEmail"] + "\n") }
+	File.open("run.log", 'a') {|f| f.write("Connection with " + ENV["GoogleEmail"].to_s + "\n") }
 		
 	connect_me ENV["GoogleEmail"], ENV["GooglePassword"], ENV["GooglePin"]
 	
