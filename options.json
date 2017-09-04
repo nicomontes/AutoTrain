@@ -23,14 +23,14 @@
   },
   "special_trip": [
     {
-      "date": "2017-06-05",
+      "date": "2017-10-04",
       "from": "st-etienne",
       "to": "paris",
       "time_min": "16:00",
       "time_max": "20:00"
     },
     {
-      "date": "2017-05-08",
+      "date": "2017-08-08",
       "from": "st-etienne",
       "to": "paris",
       "time_min": "16:00",
