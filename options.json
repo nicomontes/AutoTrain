@@ -4,21 +4,23 @@
     "usual_to": "st-etienne",
     "from_option" : [],
     "to_option" : [
-      "lyon"
+      "lyon",
+      "le-creusot-tgv"
     ],
-    "usual_departure_time_min": "18:00",
-    "usual_departure_time_max": "21:00",
+    "usual_departure_time_min": "16:00",
+    "usual_departure_time_max": "19:00",
     "usual_day": "Fri"
   },
   "return" : {
     "usual_from": "st-etienne",
     "usual_to": "paris",
     "from_option" : [
-      "lyon"
+      "lyon",
+      "le-creusot-tgv"
     ],
     "to_option" : [],
-    "usual_departure_time_min": "18:00",
-    "usual_departure_time_max": "21:00",
+    "usual_departure_time_min": "16:00",
+    "usual_departure_time_max": "19:00",
     "usual_day": "Sun"
   },
   "special_trip": [
