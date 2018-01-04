@@ -24,6 +24,7 @@ gem update --system --no-rdoc --no-ri
 gem install watir --no-rdoc --no-ri
 
 gem install rotp
+gem install sendgrid-ruby
 ```
 
 ## Install Chrome Driver
@@ -36,13 +37,14 @@ You must to download Chrome driver [here](https://sites.google.com/a/chromium.or
 
 You must to export variables for authentication.  
 
-* GoogleEmail : Your Google Email
-* GooglePassword : Your password
-* GooglePin : Your Secret for OTP. To get this code you need to go to Google Preferences and change your phone.
+* GOOGLE_EMAIL : Your Google Email
+* GOOGLE_PASSWORD : Your password
+* GOOGLE_PIN : Your Secret for OTP. To get this code you need to go to Google Preferences and change your phone.
+* SENDGRID_API_KEY : SendGrid API to send emails
 
 Example :
 ```bash
-export GoogleEmail='john.doe@gmail.com'; export GooglePassword='azerty123'; export GooglePin='9ea6lowvm7m57ltuwldrwqjkldjauhjz'
+export GoogleEmail='john.doe@gmail.com'; export GooglePassword='azerty123'; export GooglePin='9ea6lowvm7m57ltuwldrwqjkldjauhjz'; export SENDGRID_API_KEY="SG.ZxoW78maTraWvtR_zS93IklGh6Hy.i6GH66_dFVbtS0DPaALCdXDgVLySsfhfMjru38"
 ```
 
 ## Options
@@ -57,7 +59,8 @@ Exemple :
     "usual_to": "st-etienne",
     "from_option" : [],
     "to_option" : [
-      "lyon"
+      "lyon",
+      "annemasse"
     ],
     "usual_departure_time_min": "18:00",
     "usual_departure_time_max": "21:00",

@@ -4,6 +4,8 @@ require 'watir'
 require 'json'
 require 'rotp'
 require 'time'
+require 'sendgrid-ruby'
+include SendGrid
 
 # Read json file
 file = File.open("options.json", "r:UTF-8")
@@ -38,6 +40,14 @@ def buy_ticket (from, to, timeMin, timeMax, days)
 	puts "Search ticket from : "+from+" to : "+to
 	File.open("run.log", 'a') {|f| f.write("Search ticket from : " + from + " to : "+ to + "\n") }
 	
+	# check first passager and TGVmax card
+	if !$browser.span(:class => 'search__passengers--checkbox').class_name.include? "checked"
+		$browser.span(:class => 'search__passengers--checkbox').checkbox().set
+	end
+	if !$browser.span(:class => 'card-item__checkbox').class_name.include? "checked"
+		$browser.span(:class => 'card-item__checkbox').checkbox().set
+	end
+	
 	# click on button search
 	$browser.button(:class => 'progress-button--button').click
 
@@ -60,15 +70,22 @@ def buy_ticket (from, to, timeMin, timeMax, days)
 			$browser.button(:class => 'progress-button--button')
 			if $browser.button(:class => 'progress-button--button').exist?
 				$browser.button(:class => 'progress-button--button').click
-				$browser.button(:class => 'cart__button--pay').wait_until_present
-				$browser.button(:class => 'cart__button--pay').click
-				$browser.span(:class => 'checkbox--custom required').wait_until_present
-				$browser.span(:class => 'checkbox--custom required').click
-				$browser.button(:type => 'submit').click
-				puts "Pay ticket from "+from+" to "+to
-				File.open("run.log", 'a') {|f| f.write("Pay ticket from " + from + " to " + to + "\n") }
-				sleep 5
-				return true
+				$browser.button(:class => 'progress-button--button').wait_while_present
+				if $browser.div(:class => 'form__errors').exist?
+					puts "Error during booking from "+from+" to "+to
+					File.open("run.log", 'a') {|f| f.write("Error during booking from " + from + " to " + to + "\n") }
+					return false
+				else
+					$browser.button(:class => 'cart__button--pay').wait_until_present
+					$browser.button(:class => 'cart__button--pay').click
+					$browser.span(:class => 'checkbox--custom required').wait_until_present
+					$browser.span(:class => 'checkbox--custom required').click
+					$browser.button(:type => 'submit').click
+					puts "Pay ticket from "+from+" to "+to
+					File.open("run.log", 'a') {|f| f.write("Pay ticket from " + from + " to " + to + "\n") }
+					sleep 5
+					return true
+				end
 			end
 		end
 	end
@@ -79,7 +96,7 @@ end
 
 
 # Method to connect me on trainline with Google account
-def connect_me (account, password, pin)
+def connect_me (accoun, password, pin)
 	# Connect me
 	$browser.button(:class => 'header__signin-button').wait_until_present
 	$browser.button(:class => 'header__signin-button').click
@@ -110,7 +127,19 @@ end
 # For go
 if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"] || Date.today.next_day($moreDaysBis).strftime('%a') == $jsonFile["go"]["usual_day"]
 	
-	connect_me ENV["GoogleEmail"], ENV["GooglePassword"], ENV["GooglePin"]
+	# Send email
+	from = Email.new(email: ENV["GOOGLE_EMAIL"])
+	to = Email.new(email: ENV["GOOGLE_EMAIL"])
+	subject = 'AutoTrain Script'
+	content = Content.new(type: 'text/plain', value: 'Run AutoTrain Script for go the '+ Date.today.next_day($moreDays).strftime('%a') + ' ' + Date.today.next_day($moreDays).to_s + ' or ' + Date.today.next_day($moreDaysBis).strftime('%a') + ' ' + Date.today.next_day($moreDaysBis).to_s)
+	mail = Mail.new(from, subject, to, content)
+
+	sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
+	response = sg.client.mail._('send').post(request_body: mail.to_json)
+	puts 'Email sent : ' + response.status_code
+	File.open("run.log", 'a') {|f| f.write("Email sent : " + response.status_code + "\n") }
+	
+	connect_me ENV["GOOGLE_EMAIL"], ENV["GOOGLE_PASSWORD"], ENV["GOOGLE_PIN"]
 	
 	sleep 5
 	
@@ -134,7 +163,19 @@ if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"]
 # For return
 elsif Date.today.next_day($moreDays).strftime('%a') == $jsonFile["return"]["usual_day"] || Date.today.next_day($moreDaysBis).strftime('%a') == $jsonFile["return"]["usual_day"]
 	
-	connect_me ENV["GoogleEmail"], ENV["GooglePassword"], ENV["GooglePin"]
+	# Send email
+	from = Email.new(email: ENV["GOOGLE_EMAIL"])
+	to = Email.new(email: ENV["GOOGLE_EMAIL"])
+	subject = 'AutoTrain Script'
+	content = Content.new(type: 'text/plain', value: 'Run AutoTrain Script for return the '+ Date.today.next_day($moreDays).strftime('%a') + ' ' + Date.today.next_day($moreDays).to_s + ' or ' + Date.today.next_day($moreDaysBis).strftime('%a') + ' ' + Date.today.next_day($moreDaysBis).to_s)
+	mail = Mail.new(from, subject, to, content)
+
+	sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
+	response = sg.client.mail._('send').post(request_body: mail.to_json)
+	puts 'Email sent : ' + response.status_code
+	File.open("run.log", 'a') {|f| f.write("Email sent : " + response.status_code + "\n") }
+	
+	connect_me ENV["GOOGLE_EMAIL"], ENV["GOOGLE_PASSWORD"], ENV["GOOGLE_PIN"]
 	
 	sleep 5
 	
@@ -157,11 +198,23 @@ elsif Date.today.next_day($moreDays).strftime('%a') == $jsonFile["return"]["usua
 	end
 
 # For special trip
-else 
+else
+	
+	# Send email
+	from = Email.new(email: ENV["GOOGLE_EMAIL"])
+	to = Email.new(email: ENV["GOOGLE_EMAIL"])
+	subject = 'AutoTrain Script'
+	content = Content.new(type: 'text/plain', value: 'Run AutoTrain Script for special trip the '+ Date.today.next_day($moreDays).strftime('%a') + ' ' + Date.today.next_day($moreDays).to_s + ' or ' + Date.today.next_day($moreDaysBis).strftime('%a') + ' ' + Date.today.next_day($moreDaysBis).to_s)
+	mail = Mail.new(from, subject, to, content)
+
+	sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
+	response = sg.client.mail._('send').post(request_body: mail.to_json)
+	puts 'Email sent : ' + response.status_code
+	File.open("run.log", 'a') {|f| f.write("Email sent : " + response.status_code + "\n") }
 	
 	$jsonFile["special_trip"].each do |trip|
 		if Date.today.next_day($moreDays).strftime('%Y-%m-%d') == trip["date"] || Date.today.next_day($moreDaysBis).strftime('%Y-%m-%d') == trip["date"]
-			connect_me ENV["GoogleEmail"], ENV["GooglePassword"], ENV["GooglePin"]
+			connect_me ENV["GOOGLE_EMAIL"], ENV["GOOGLE_PASSWORD"], ENV["GOOGLE_PIN"]
 			sleep 5
 			buy_ticket trip["from"], trip["to"], trip["time_min"], trip["time_max"], trip["date"]
 		end
