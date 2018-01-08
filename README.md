@@ -40,11 +40,10 @@ You must to export variables for authentication.
 * GOOGLE_EMAIL : Your Google Email
 * GOOGLE_PASSWORD : Your password
 * GOOGLE_PIN : Your Secret for OTP. To get this code you need to go to Google Preferences and change your phone.
-* SENDGRID_API_KEY : SendGrid API to send emails
 
 Example :
 ```bash
-export GoogleEmail='john.doe@gmail.com'; export GooglePassword='azerty123'; export GooglePin='9ea6lowvm7m57ltuwldrwqjkldjauhjz'; export SENDGRID_API_KEY="SG.ZxoW78maTraWvtR_zS93IklGh6Hy.i6GH66_dFVbtS0DPaALCdXDgVLySsfhfMjru38"
+export GoogleEmail='john.doe@gmail.com'; export GooglePassword='azerty123'; export GooglePin='9ea6lowvm7m57ltuwldrwqjkldjauhjz'
 ```
 
 ## Options

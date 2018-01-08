@@ -4,8 +4,6 @@ require 'watir'
 require 'json'
 require 'rotp'
 require 'time'
-require 'sendgrid-ruby'
-include SendGrid
 
 # Read json file
 file = File.open("options.json", "r:UTF-8")
@@ -127,18 +125,6 @@ end
 # For go
 if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"] || Date.today.next_day($moreDaysBis).strftime('%a') == $jsonFile["go"]["usual_day"]
 	
-	# Send email
-	from = Email.new(email: ENV["GOOGLE_EMAIL"])
-	to = Email.new(email: ENV["GOOGLE_EMAIL"])
-	subject = 'AutoTrain Script'
-	content = Content.new(type: 'text/plain', value: 'Run AutoTrain Script for go the '+ Date.today.next_day($moreDays).strftime('%a') + ' ' + Date.today.next_day($moreDays).to_s + ' or ' + Date.today.next_day($moreDaysBis).strftime('%a') + ' ' + Date.today.next_day($moreDaysBis).to_s)
-	mail = Mail.new(from, subject, to, content)
-
-	sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
-	response = sg.client.mail._('send').post(request_body: mail.to_json)
-	puts 'Email sent : ' + response.status_code
-	File.open("run.log", 'a') {|f| f.write("Email sent : " + response.status_code + "\n") }
-	
 	connect_me ENV["GOOGLE_EMAIL"], ENV["GOOGLE_PASSWORD"], ENV["GOOGLE_PIN"]
 	
 	sleep 5
@@ -162,18 +148,6 @@ if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"]
 	end
 # For return
 elsif Date.today.next_day($moreDays).strftime('%a') == $jsonFile["return"]["usual_day"] || Date.today.next_day($moreDaysBis).strftime('%a') == $jsonFile["return"]["usual_day"]
-	
-	# Send email
-	from = Email.new(email: ENV["GOOGLE_EMAIL"])
-	to = Email.new(email: ENV["GOOGLE_EMAIL"])
-	subject = 'AutoTrain Script'
-	content = Content.new(type: 'text/plain', value: 'Run AutoTrain Script for return the '+ Date.today.next_day($moreDays).strftime('%a') + ' ' + Date.today.next_day($moreDays).to_s + ' or ' + Date.today.next_day($moreDaysBis).strftime('%a') + ' ' + Date.today.next_day($moreDaysBis).to_s)
-	mail = Mail.new(from, subject, to, content)
-
-	sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
-	response = sg.client.mail._('send').post(request_body: mail.to_json)
-	puts 'Email sent : ' + response.status_code
-	File.open("run.log", 'a') {|f| f.write("Email sent : " + response.status_code + "\n") }
 	
 	connect_me ENV["GOOGLE_EMAIL"], ENV["GOOGLE_PASSWORD"], ENV["GOOGLE_PIN"]
 	
@@ -199,18 +173,6 @@ elsif Date.today.next_day($moreDays).strftime('%a') == $jsonFile["return"]["usua
 
 # For special trip
 else
-	
-	# Send email
-	from = Email.new(email: ENV["GOOGLE_EMAIL"])
-	to = Email.new(email: ENV["GOOGLE_EMAIL"])
-	subject = 'AutoTrain Script'
-	content = Content.new(type: 'text/plain', value: 'Run AutoTrain Script for special trip the '+ Date.today.next_day($moreDays).strftime('%a') + ' ' + Date.today.next_day($moreDays).to_s + ' or ' + Date.today.next_day($moreDaysBis).strftime('%a') + ' ' + Date.today.next_day($moreDaysBis).to_s)
-	mail = Mail.new(from, subject, to, content)
-
-	sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
-	response = sg.client.mail._('send').post(request_body: mail.to_json)
-	puts 'Email sent : ' + response.status_code
-	File.open("run.log", 'a') {|f| f.write("Email sent : " + response.status_code + "\n") }
 	
 	$jsonFile["special_trip"].each do |trip|
 		if Date.today.next_day($moreDays).strftime('%Y-%m-%d') == trip["date"] || Date.today.next_day($moreDaysBis).strftime('%Y-%m-%d') == trip["date"]
