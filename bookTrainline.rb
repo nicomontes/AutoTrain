@@ -96,7 +96,7 @@ end
 
 
 # Method to connect me on trainline with Google account
-def connect_me (accoun, password, pin)
+def connect_me (account, password, pin)
 	# Connect me
 	$browser.button(:class => 'header__signin-button').wait_until_present
 	$browser.button(:class => 'header__signin-button').click
