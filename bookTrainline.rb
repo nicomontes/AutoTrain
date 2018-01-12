@@ -7,6 +7,8 @@ require 'time'
 require 'sendgrid-ruby'
 include SendGrid
 
+File.open("run.log", 'a') {|f| f.write("----------\n") }
+
 # Read json file
 file = File.open("options.json", "r:UTF-8")
 json_file = file.read
@@ -101,24 +103,31 @@ def connect_me (account, password, pin)
 	$browser.button(:class => 'header__signin-button').wait_until_present
 	$browser.button(:class => 'header__signin-button').click
 	$browser.button(:class => 'social-signin-google').wait_until_present
+	sleep 2.456
 	$browser.button(:class => 'social-signin-google').click
 	
-	# Set Google account informations in popup windows
-	$browser.window(:index => 1).use do
-		$browser.text_field(:id => 'identifierId').wait_until_present
-		$browser.text_field(:id => 'identifierId').set account
-		$browser.span(:text => 'Suivant').click
+	if $browser.div(:class => 'form__errors').exist?
+		puts "Error during Google connection"
+		File.open("run.log", 'a') {|f| f.write("Error during Google connection\n") }
+		return false
+	else	
+		# Set Google account informations in popup windows
+		$browser.window(:index => 1).use do
+			$browser.text_field(:id => 'identifierId').wait_until_present
+			$browser.text_field(:id => 'identifierId').set account
+			$browser.span(:text => 'Suivant').click
 
-		$browser.text_field(:name => 'password').wait_until_present
-		$browser.text_field(:name => 'password').set password
-		$browser.span(:text => 'Suivant').click
-		
-		$totp = ROTP::TOTP.new(pin)
-		
-		$totpPin = $totp.now.to_s
-		$browser.text_field(:id => 'totpPin').wait_until_present
-		$browser.text_field(:id => 'totpPin').set $totpPin
-		$browser.span(:text => 'Suivant').click
+			$browser.text_field(:name => 'password').wait_until_present
+			$browser.text_field(:name => 'password').set password
+			$browser.span(:text => 'Suivant').click
+			
+			$totp = ROTP::TOTP.new(pin)
+			
+			$totpPin = $totp.now.to_s
+			$browser.text_field(:id => 'totpPin').wait_until_present
+			$browser.text_field(:id => 'totpPin').set $totpPin
+			$browser.span(:text => 'Suivant').click
+		end
 	end	
 end
 
@@ -126,18 +135,6 @@ end
 
 # For go
 if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"] || Date.today.next_day($moreDaysBis).strftime('%a') == $jsonFile["go"]["usual_day"]
-	
-	# Send email
-	from = Email.new(email: ENV["GOOGLE_EMAIL"])
-	to = Email.new(email: ENV["GOOGLE_EMAIL"])
-	subject = 'AutoTrain Script'
-	content = Content.new(type: 'text/plain', value: 'Run AutoTrain Script for go the '+ Date.today.next_day($moreDays).strftime('%a') + ' ' + Date.today.next_day($moreDays).to_s + ' or ' + Date.today.next_day($moreDaysBis).strftime('%a') + ' ' + Date.today.next_day($moreDaysBis).to_s)
-	mail = Mail.new(from, subject, to, content)
-
-	sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
-	response = sg.client.mail._('send').post(request_body: mail.to_json)
-	puts 'Email sent : ' + response.status_code
-	File.open("run.log", 'a') {|f| f.write("Email sent : " + response.status_code + "\n") }
 	
 	connect_me ENV["GOOGLE_EMAIL"], ENV["GOOGLE_PASSWORD"], ENV["GOOGLE_PIN"]
 	
@@ -148,7 +145,7 @@ if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"]
 	if $jsonFile["go"]["from_option"][0]
 		$jsonFile["go"]["from_option"].each do |from|
 			if buyOne == false
-				buyOne = buyOne = buy_ticket from, $jsonFile["go"]["usual_to"], $jsonFile["go"]["usual_departure_time_min"], $jsonFile["go"]["usual_departure_time_max"], $jsonFile["go"]["usual_day"]
+				buyOne = buy_ticket from, $jsonFile["go"]["usual_to"], $jsonFile["go"]["usual_departure_time_min"], $jsonFile["go"]["usual_departure_time_max"], $jsonFile["go"]["usual_day"]
 			end
 		end
 	end
@@ -163,18 +160,6 @@ if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"]
 # For return
 elsif Date.today.next_day($moreDays).strftime('%a') == $jsonFile["return"]["usual_day"] || Date.today.next_day($moreDaysBis).strftime('%a') == $jsonFile["return"]["usual_day"]
 	
-	# Send email
-	from = Email.new(email: ENV["GOOGLE_EMAIL"])
-	to = Email.new(email: ENV["GOOGLE_EMAIL"])
-	subject = 'AutoTrain Script'
-	content = Content.new(type: 'text/plain', value: 'Run AutoTrain Script for return the '+ Date.today.next_day($moreDays).strftime('%a') + ' ' + Date.today.next_day($moreDays).to_s + ' or ' + Date.today.next_day($moreDaysBis).strftime('%a') + ' ' + Date.today.next_day($moreDaysBis).to_s)
-	mail = Mail.new(from, subject, to, content)
-
-	sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
-	response = sg.client.mail._('send').post(request_body: mail.to_json)
-	puts 'Email sent : ' + response.status_code
-	File.open("run.log", 'a') {|f| f.write("Email sent : " + response.status_code + "\n") }
-	
 	connect_me ENV["GOOGLE_EMAIL"], ENV["GOOGLE_PASSWORD"], ENV["GOOGLE_PIN"]
 	
 	sleep 5
@@ -184,7 +169,7 @@ elsif Date.today.next_day($moreDays).strftime('%a') == $jsonFile["return"]["usua
 	if $jsonFile["return"]["from_option"][0]
 		$jsonFile["return"]["from_option"].each do |from|
 			if buyOne == false
-				buyOne = buyOne = buy_ticket from, $jsonFile["return"]["usual_to"], $jsonFile["return"]["usual_departure_time_min"], $jsonFile["return"]["usual_departure_time_max"], $jsonFile["return"]["usual_day"]
+				buyOne = buy_ticket from, $jsonFile["return"]["usual_to"], $jsonFile["return"]["usual_departure_time_min"], $jsonFile["return"]["usual_departure_time_max"], $jsonFile["return"]["usual_day"]
 			end
 		end
 	end
@@ -192,25 +177,13 @@ elsif Date.today.next_day($moreDays).strftime('%a') == $jsonFile["return"]["usua
 	if $jsonFile["return"]["to_option"][0]
 		$jsonFile["return"]["to_option"].each do |to|
 			if buyOne == false
-				buyOne = buyOne = buy_ticket $jsonFile["return"]["usual_from"], to, $jsonFile["return"]["usual_departure_time_min"], $jsonFile["return"]["usual_departure_time_max"], $jsonFile["return"]["usual_day"]
+				buyOne = buy_ticket $jsonFile["return"]["usual_from"], to, $jsonFile["return"]["usual_departure_time_min"], $jsonFile["return"]["usual_departure_time_max"], $jsonFile["return"]["usual_day"]
 			end
 		end
 	end
 
 # For special trip
 else
-	
-	# Send email
-	from = Email.new(email: ENV["GOOGLE_EMAIL"])
-	to = Email.new(email: ENV["GOOGLE_EMAIL"])
-	subject = 'AutoTrain Script'
-	content = Content.new(type: 'text/plain', value: 'Run AutoTrain Script for special trip the '+ Date.today.next_day($moreDays).strftime('%a') + ' ' + Date.today.next_day($moreDays).to_s + ' or ' + Date.today.next_day($moreDaysBis).strftime('%a') + ' ' + Date.today.next_day($moreDaysBis).to_s)
-	mail = Mail.new(from, subject, to, content)
-
-	sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
-	response = sg.client.mail._('send').post(request_body: mail.to_json)
-	puts 'Email sent : ' + response.status_code
-	File.open("run.log", 'a') {|f| f.write("Email sent : " + response.status_code + "\n") }
 	
 	$jsonFile["special_trip"].each do |trip|
 		if Date.today.next_day($moreDays).strftime('%Y-%m-%d') == trip["date"] || Date.today.next_day($moreDaysBis).strftime('%Y-%m-%d') == trip["date"]
@@ -223,3 +196,38 @@ else
 end
 
 $browser.close
+
+# Read run.log
+line = ''
+contentValue = ''
+counter = 1
+startLog = 1
+file = File.new("run.log", "r")
+while (line = file.gets)
+  if line == "----------\n"
+		startLog = counter
+	end
+  counter = counter + 1
+end
+file.close
+counterBis = 1
+file = File.new("run.log", "r")
+while (line = file.gets)
+		if counterBis > startLog
+			contentValue = contentValue + line
+		end
+    counterBis = counterBis + 1
+end
+file.close
+
+# Send email
+from = Email.new(email: ENV["GOOGLE_EMAIL"])
+to = Email.new(email: ENV["GOOGLE_EMAIL"])
+subject = 'AutoTrain Script'
+content = Content.new(type: 'text/plain', value: contentValue)
+mail = Mail.new(from, subject, to, content)
+
+sg = SendGrid::API.new(api_key: ENV['SENDGRID_API_KEY'])
+response = sg.client.mail._('send').post(request_body: mail.to_json)
+puts 'Email sent : ' + response.status_code
+File.open("run.log", 'a') {|f| f.write("Email sent : " + response.status_code + "\n") }
