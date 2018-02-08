@@ -25,18 +25,18 @@
   },
   "special_trip": [
     {
-      "date": "2017-10-04",
-      "from": "st-etienne",
+      "date": "2018-02-05",
+      "from": "lyon",
       "to": "paris",
-      "time_min": "16:00",
-      "time_max": "20:00"
+      "time_min": "08:00",
+      "time_max": "10:00"
     },
     {
-      "date": "2017-08-08",
-      "from": "st-etienne",
-      "to": "paris",
-      "time_min": "16:00",
-      "time_max": "23:00"
+      "date": "2018-02-09",
+      "from": "paris",
+      "to": "lyon",
+      "time_min": "15:00",
+      "time_max": "19:00"
     }
   ]
 }
