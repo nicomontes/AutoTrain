@@ -21,23 +21,16 @@ $jsonFile = JSON.parse(json_file)
 $browser = Watir::Browser.new :chrome
 $browser.goto "https://www.trainline.fr/search/"
 
-# We can book a train 30 or 3 days before start
+# We can book a train 30 before start
 $moreDays = 30
-$moreDaysBis = 3
-
-puts Date.today.to_s + " + 30 days => " + Date.today.next_day($moreDays).to_s
-puts Date.today.to_s + " + 3 days => " + Date.today.next_day($moreDaysBis).to_s
-File.open("run.log", 'a') {|f| f.write(Date.today.to_s + " + 30 days => " + Date.today.next_day($moreDays).to_s + "\n") }
-File.open("run.log", 'a') {|f| f.write(Date.today.to_s + " + 3 days => " + Date.today.next_day($moreDaysBis).to_s + "\n") }
 
 # Method to buy ticket on trainline
-def buy_ticket (from, to, timeMin, timeMax, days)
+def buy_ticket (from, to, timeMin, timeMax, days, moreD)
+	puts Date.today.to_s + " + "+ moreD.to_s + " days => " + Date.today.next_day(moreD).strftime('%a').to_s + " " + Date.today.next_day(moreD).to_s
+	File.open("run.log", 'a') {|f| f.write(Date.today.to_s + " + "+ moreD.to_s + " days => " + Date.today.next_day(moreD).strftime('%a').to_s + " " + Date.today.next_day(moreD).to_s + "\n") }
+	
 	# Go to search page
-	if Date.today.next_day($moreDays).strftime('%a') == days
-		$browser.goto "https://www.trainline.fr/search/"+from+"/"+to+"/"+Date.today.next_day($moreDays).to_s+"-"+timeMin.to_s+":00"
-	else
-		 $browser.goto "https://www.trainline.fr/search/"+from+"/"+to+"/"+Date.today.next_day($moreDaysBis).to_s+"-"+timeMin.to_s+":00"
-	end
+	$browser.goto "https://www.trainline.fr/search/"+from+"/"+to+"/"+Date.today.next_day(moreD).to_s+"-"+timeMin.to_s+":00"
 	
 	puts "Search ticket from : "+from+" to : "+to
 	File.open("run.log", 'a') {|f| f.write("Search ticket from : " + from + " to : "+ to + "\n") }
@@ -51,11 +44,18 @@ def buy_ticket (from, to, timeMin, timeMax, days)
 	end
 	
 	# click on button search
-	$browser.button(:class => 'progress-button--button').click
+	$browser.button(:class => 'progress-button__button').click
 
 	# Wait to load all trains
-	$browser.div(:class => 'progress-button--bar').wait_while_present
+	$browser.div(:class => 'progress-button__bar').wait_while_present
 	
+	while $browser.div(:class => 'form__errors').exist?
+		puts "Error during Booking we retry"
+		File.open("run.log", 'a') {|f| f.write("Error during Booking we retry\n") }
+		sleep 5
+		$browser.button(:class => 'progress-button__button').click
+		$browser.div(:class => 'progress-button__bar').wait_while_present
+	end
 	
 	line = $browser.divs(:class => 'search__results--line')
 	
@@ -69,10 +69,10 @@ def buy_ticket (from, to, timeMin, timeMax, days)
 		if Time.parse(trainTime) >= Time.parse(timeMin) && Time.parse(trainTime) <= Time.parse(timeMax) && !l.div(:class => 'unsellable').exist?
 			l.click
 			sleep 2
-			$browser.button(:class => 'progress-button--button')
-			if $browser.button(:class => 'progress-button--button').exist?
-				$browser.button(:class => 'progress-button--button').click
-				$browser.button(:class => 'progress-button--button').wait_while_present
+			$browser.button(:class => 'progress-button__button')
+			if $browser.button(:class => 'progress-button__button').exist?
+				$browser.button(:class => 'progress-button__button').click
+				$browser.button(:class => 'progress-button__button').wait_while_present
 				if $browser.div(:class => 'form__errors').exist?
 					puts "Error during booking from "+from+" to "+to
 					File.open("run.log", 'a') {|f| f.write("Error during booking from " + from + " to " + to + "\n") }
@@ -131,68 +131,45 @@ def connect_me (account, password, pin)
 	end	
 end
 
+# Connect to Trainline account
+connect_me ENV["GOOGLE_EMAIL"], ENV["GOOGLE_PASSWORD"], ENV["GOOGLE_PIN"]
+sleep 5
 
-
-# For go
-if Date.today.next_day($moreDays).strftime('%a') == $jsonFile["go"]["usual_day"] || Date.today.next_day($moreDaysBis).strftime('%a') == $jsonFile["go"]["usual_day"]
-	
-	connect_me ENV["GOOGLE_EMAIL"], ENV["GOOGLE_PASSWORD"], ENV["GOOGLE_PIN"]
-	
-	sleep 5
-	
-	buyOne = buy_ticket $jsonFile["go"]["usual_from"], $jsonFile["go"]["usual_to"], $jsonFile["go"]["usual_departure_time_min"], $jsonFile["go"]["usual_departure_time_max"], $jsonFile["go"]["usual_day"]
-	
-	if $jsonFile["go"]["from_option"][0]
-		$jsonFile["go"]["from_option"].each do |from|
-			if buyOne == false
-				buyOne = buy_ticket from, $jsonFile["go"]["usual_to"], $jsonFile["go"]["usual_departure_time_min"], $jsonFile["go"]["usual_departure_time_max"], $jsonFile["go"]["usual_day"]
+# For trip
+$jsonFile["trip"].each do |trip|
+	# Try to buy a ticket every week during $moreDays
+	i = $moreDays
+	while i >= 0
+		if Date.today.next_day(i).strftime('%a') == trip["usual_day"]
+			buyOne = buy_ticket trip["usual_from"], trip["usual_to"], trip["usual_departure_time_min"], trip["usual_departure_time_max"], trip["usual_day"], i
+			if trip["from_option"][0]
+				trip["from_option"].each do |from|
+					if buyOne == false
+						buyOne = buy_ticket from, trip["usual_to"], trip["usual_departure_time_min"], trip["usual_departure_time_max"], trip["usual_day"], i
+					end
+				end
+			end
+			if trip["to_option"][0]
+				trip["to_option"].each do |to|
+					if buyOne == false
+						buyOne = buyOne = buy_ticket trip["usual_from"], to, trip["usual_departure_time_min"], trip["usual_departure_time_max"], trip["usual_day"], i
+					end
+				end
 			end
 		end
+		i -= 1
 	end
-	
-	if $jsonFile["go"]["to_option"][0]
-		$jsonFile["go"]["to_option"].each do |to|
-			if buyOne == false
-				buyOne = buyOne = buy_ticket $jsonFile["go"]["usual_from"], to, $jsonFile["go"]["usual_departure_time_min"], $jsonFile["go"]["usual_departure_time_max"], $jsonFile["go"]["usual_day"]
-			end
-		end
-	end
-# For return
-elsif Date.today.next_day($moreDays).strftime('%a') == $jsonFile["return"]["usual_day"] || Date.today.next_day($moreDaysBis).strftime('%a') == $jsonFile["return"]["usual_day"]
-	
-	connect_me ENV["GOOGLE_EMAIL"], ENV["GOOGLE_PASSWORD"], ENV["GOOGLE_PIN"]
-	
-	sleep 5
-	
-	buyOne = buy_ticket $jsonFile["return"]["usual_from"], $jsonFile["return"]["usual_to"], $jsonFile["return"]["usual_departure_time_min"], $jsonFile["return"]["usual_departure_time_max"], $jsonFile["return"]["usual_day"]
-	
-	if $jsonFile["return"]["from_option"][0]
-		$jsonFile["return"]["from_option"].each do |from|
-			if buyOne == false
-				buyOne = buy_ticket from, $jsonFile["return"]["usual_to"], $jsonFile["return"]["usual_departure_time_min"], $jsonFile["return"]["usual_departure_time_max"], $jsonFile["return"]["usual_day"]
-			end
-		end
-	end
-	
-	if $jsonFile["return"]["to_option"][0]
-		$jsonFile["return"]["to_option"].each do |to|
-			if buyOne == false
-				buyOne = buy_ticket $jsonFile["return"]["usual_from"], to, $jsonFile["return"]["usual_departure_time_min"], $jsonFile["return"]["usual_departure_time_max"], $jsonFile["return"]["usual_day"]
-			end
-		end
-	end
+end
 
 # For special trip
-else
-	
-	$jsonFile["special_trip"].each do |trip|
-		if Date.today.next_day($moreDays).strftime('%Y-%m-%d') == trip["date"] || Date.today.next_day($moreDaysBis).strftime('%Y-%m-%d') == trip["date"]
-			connect_me ENV["GOOGLE_EMAIL"], ENV["GOOGLE_PASSWORD"], ENV["GOOGLE_PIN"]
-			sleep 5
-			buy_ticket trip["from"], trip["to"], trip["time_min"], trip["time_max"], trip["date"]
+$jsonFile["special_trip"].each do |trip|
+	i = $moreDays
+	while i >= 0
+		if Date.today.next_day(i).strftime('%Y-%m-%d') == trip["date"]
+			buy_ticket trip["from"], trip["to"], trip["time_min"], trip["time_max"], trip["date"], i
 		end
+		i -= 1
 	end
-	
 end
 
 $browser.close
