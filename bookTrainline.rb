@@ -71,6 +71,8 @@ def buy_ticket (from, to, timeMin, timeMax, days, moreD)
 			sleep 2
 			$browser.button(:class => 'progress-button__button')
 			if $browser.button(:class => 'progress-button__button').exist?
+				puts "We find one train"
+				File.open("run.log", 'a') {|f| f.write("We find one train\n") }
 				$browser.button(:class => 'progress-button__button').click
 				$browser.button(:class => 'progress-button__button').wait_while_present
 				if $browser.div(:class => 'form__errors').exist?
