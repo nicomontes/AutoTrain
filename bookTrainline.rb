@@ -141,21 +141,13 @@ sleep 5
 $jsonFile["trip"].each do |trip|
 	# Try to buy a ticket every week during $moreDays
 	i = $moreDays
-	while i >= 0
-		if Date.today.next_day(i).strftime('%a') == trip["usual_day"]
-			buyOne = buy_ticket trip["usual_from"], trip["usual_to"], trip["usual_departure_time_min"], trip["usual_departure_time_max"], trip["usual_day"], i
-			if trip["from_option"][0]
-				trip["from_option"].each do |from|
-					if buyOne == false
-						buyOne = buy_ticket from, trip["usual_to"], trip["usual_departure_time_min"], trip["usual_departure_time_max"], trip["usual_day"], i
-					end
-				end
-			end
-			if trip["to_option"][0]
-				trip["to_option"].each do |to|
-					if buyOne == false
-						buyOne = buyOne = buy_ticket trip["usual_from"], to, trip["usual_departure_time_min"], trip["usual_departure_time_max"], trip["usual_day"], i
-					end
+	while i > 0
+		if Date.today.next_day(i).strftime('%a') == trip["day"]
+			buyOne = buy_ticket trip["from"], trip["to"], trip["time_min"], trip["time_max"], trip["day"], i
+			while trip["trip"]
+				trip = trip["trip"]
+				if buyOne == false && Date.today.next_day(i).strftime('%a') == trip["day"]
+					buyOne = buy_ticket trip["from"], trip["to"], trip["time_min"], trip["time_max"], trip["usual_day"], i
 				end
 			end
 		end

@@ -1,28 +1,58 @@
 {
   "trip" : [
     {
-      "usual_from": "paris",
-      "usual_to": "st-etienne",
-      "from_option" : [],
-      "to_option" : [
-        "lyon",
-        "le-creusot-tgv"
-      ],
-      "usual_departure_time_min": "16:00",
-      "usual_departure_time_max": "19:00",
-      "usual_day": "Fri"
+      "from": "paris",
+      "to": "st-etienne",
+      "time_min": "16:00",
+      "time_max": "19:00",
+      "day": "Fri",
+      "trip" :
+        {
+          "from": "paris",
+          "to": "lyon",
+          "time_min": "17:30",
+          "time_max": "20:00",
+          "day": "Fri",
+          "trip" :
+            {
+              "from": "paris",
+              "to": "le-creusot-tgv",
+              "time_min": "18:00",
+              "time_max": "21:30",
+              "day": "Fri"
+            }
+        }
     },
     {
-      "usual_from": "st-etienne",
-      "usual_to": "paris",
-      "from_option" : [
-        "lyon",
-        "le-creusot-tgv"
-      ],
-      "to_option" : [],
-      "usual_departure_time_min": "17:00",
-      "usual_departure_time_max": "19:00",
-      "usual_day": "Sun"
+      "from": "st-etienne",
+      "to": "paris",
+      "time_min": "17:00",
+      "time_max": "19:00",
+      "day": "Sun",
+      "trip" :
+        {
+          "from": "lyon",
+          "to": "paris",
+          "time_min": "18:00",
+          "time_max": "20:00",
+          "day": "Sun",
+          "trip" :
+            {
+              "from": "le-creusot-tgv",
+              "to": "paris",
+              "time_min": "18:00",
+              "time_max": "21:30",
+              "day": "Sun",
+              "trip" :
+                {
+                  "from": "st-etienne",
+                  "to": "paris",
+                  "time_min": "06:00",
+                  "time_max": "07:00",
+                  "day": "Mon"
+                }
+            }
+        }
     }
   ],
   "special_trip" : [
