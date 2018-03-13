@@ -50,8 +50,8 @@ def buy_ticket (from, to, timeMin, timeMax, days, moreD)
 	$browser.div(:class => 'progress-button__bar').wait_while_present
 	
 	while $browser.div(:class => 'form__errors').exist?
-		puts "Error during Booking we retry"
-		File.open("run.log", 'a') {|f| f.write("Error during Booking we retry\n") }
+		puts "\tError during Booking we retry"
+		File.open("run.log", 'a') {|f| f.write("\tError during Booking we retry\n") }
 		sleep 5
 		$browser.button(:class => 'progress-button__button').click
 		$browser.div(:class => 'progress-button__bar').wait_while_present
@@ -71,13 +71,13 @@ def buy_ticket (from, to, timeMin, timeMax, days, moreD)
 			sleep 2
 			$browser.button(:class => 'progress-button__button')
 			if $browser.button(:class => 'progress-button__button').exist?
-				puts "We find one train"
-				File.open("run.log", 'a') {|f| f.write("We find one train\n") }
+				puts "\tWe find one train"
+				File.open("run.log", 'a') {|f| f.write("\tWe find one train\n") }
 				$browser.button(:class => 'progress-button__button').click
 				$browser.button(:class => 'progress-button__button').wait_while_present
 				if $browser.div(:class => 'form__errors').exist?
-					puts "Error during booking from "+from+" to "+to
-					File.open("run.log", 'a') {|f| f.write("Error during booking from " + from + " to " + to + "\n") }
+					puts "\tError during booking from "+from+" to "+to
+					File.open("run.log", 'a') {|f| f.write("\tError during booking from " + from + " to " + to + "\n") }
 					return false
 				else
 					$browser.button(:class => 'cart__button--pay').wait_until_present
@@ -85,22 +85,24 @@ def buy_ticket (from, to, timeMin, timeMax, days, moreD)
 					$browser.span(:class => 'checkbox--custom required').wait_until_present
 					$browser.span(:class => 'checkbox--custom required').click
 					$browser.button(:type => 'submit').click
-					puts "Pay ticket from "+from+" to "+to
-					File.open("run.log", 'a') {|f| f.write("Pay ticket from " + from + " to " + to + "\n") }
+					puts "\t\tPay ticket from "+from+" to "+to
+					File.open("run.log", 'a') {|f| f.write("\t\tPay ticket from " + from + " to " + to + "\n") }
 					sleep 5
 					return true
 				end
 			end
 		end
 	end
-	puts "No ticket find from : "+from+" to : "+to
-	File.open("run.log", 'a') {|f| f.write("No ticket find from : " + from + " to : " + to + "\n") }
+	puts "\tNo ticket find from : "+from+" to : "+to
+	File.open("run.log", 'a') {|f| f.write("\tNo ticket find from : " + from + " to : " + to + "\n") }
 	return false
 end
 
 
 # Method to connect me on trainline with Google account
 def connect_me (account, password, pin)
+	puts "Connection with "+account
+	File.open("run.log", 'a') {|f| f.write("Connection with "+account + "\n") }
 	# Connect me
 	$browser.button(:class => 'header__signin-button').wait_until_present
 	$browser.button(:class => 'header__signin-button').click
@@ -138,21 +140,22 @@ connect_me ENV["GOOGLE_EMAIL"], ENV["GOOGLE_PASSWORD"], ENV["GOOGLE_PIN"]
 sleep 5
 
 # For trip
-$jsonFile["trip"].each do |trip|
-	# Try to buy a ticket every week during $moreDays
-	i = $moreDays
-	while i > 0
+# Try to buy a ticket every week during $moreDays
+i = $moreDays
+while i > 0
+	$jsonFile["trip"].each do |trip|
+		buyOne = false
 		if Date.today.next_day(i).strftime('%a') == trip["day"]
 			buyOne = buy_ticket trip["from"], trip["to"], trip["time_min"], trip["time_max"], trip["day"], i
-			while trip["trip"]
-				trip = trip["trip"]
-				if buyOne == false && Date.today.next_day(i).strftime('%a') == trip["day"]
-					buyOne = buy_ticket trip["from"], trip["to"], trip["time_min"], trip["time_max"], trip["usual_day"], i
-				end
+		end
+		while trip["trip"]
+			trip = trip["trip"]
+			if buyOne == false && Date.today.next_day(i).strftime('%a') == trip["day"]
+				buyOne = buy_ticket trip["from"], trip["to"], trip["time_min"], trip["time_max"], trip["usual_day"], i
 			end
 		end
-		i -= 1
 	end
+	i -= 1
 end
 
 # For special trip
