@@ -10,15 +10,15 @@
         {
           "from": "paris",
           "to": "lyon",
-          "time_min": "17:30",
-          "time_max": "20:00",
+          "time_min": "16:00",
+          "time_max": "19:00",
           "day": "Fri",
           "trip" :
             {
               "from": "paris",
               "to": "le-creusot-tgv",
-              "time_min": "18:00",
-              "time_max": "21:30",
+              "time_min": "16:00",
+              "time_max": "18:00",
               "day": "Fri"
             }
         }
