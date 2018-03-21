@@ -57,11 +57,11 @@
   ],
   "special_trip" : [
     {
-      "date": "2017-10-04",
-      "from": "st-etienne",
-      "to": "paris",
-      "time_min": "16:00",
-      "time_max": "20:00"
+      "date": "2018-03-28",
+      "from": "paris",
+      "to": "lille",
+      "time_min": "12:00",
+      "time_max": "14:00"
     },
     {
       "date": "2017-08-08",

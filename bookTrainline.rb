@@ -57,7 +57,7 @@ def buy_ticket (from, to, timeMin, timeMax, days, moreD)
 		$browser.div(:class => 'progress-button__bar').wait_while_present
 	end
 	
-	line = $browser.divs(:class => 'search__results--line')
+	line = $browser.divs(:class => 'search__results--line-container ')
 	
 	line.each do |l|
 		hours = l.span(:class => 'time')
@@ -66,7 +66,8 @@ def buy_ticket (from, to, timeMin, timeMax, days, moreD)
 		trainMinute = /h[0-9]{1,2}/.match(hours.text.to_s).to_s
 		trainMinute = /[0-9]{1,2}/.match(trainMinute).to_s
 		trainTime = trainHour.to_s+":"+trainMinute.to_s
-		if Time.parse(trainTime) >= Time.parse(timeMin) && Time.parse(trainTime) <= Time.parse(timeMax) && !l.div(:class => 'unsellable').exist?
+		# IF Train match with hours and is sellable and is TGVMax
+		if Time.parse(trainTime) >= Time.parse(timeMin) && Time.parse(trainTime) <= Time.parse(timeMax) && !l.div(:class => 'unsellable').exist? && l.div(:class => 'train-logo--tgvmax-monochrome').exist?
 			l.click
 			sleep 2
 			$browser.button(:class => 'progress-button__button')
