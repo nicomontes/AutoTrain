@@ -7,8 +7,6 @@ require 'time'
 require 'sendgrid-ruby'
 include SendGrid
 
-File.open("run.log", 'a') {|f| f.write("----------\n") }
-
 # Read json file
 file = File.open("options.json", "r:UTF-8")
 json_file = file.read
@@ -47,14 +45,19 @@ def buy_ticket (from, to, timeMin, timeMax, days, moreD)
 	$browser.button(:class => 'progress-button__button').click
 
 	# Wait to load all trains
-	$browser.div(:class => 'progress-button__bar').wait_while_present
-	
+	begin
+		$browser.div(:class => 'progress-button__bar').wait_while_present(60)
+	rescue
+		File.open("run.log", 'a') {|f| f.write("\tLoad trains is so long !\n") }
+		buy_ticket(from, to, timeMin, timeMax, days, moreD)
+	end	
+
 	while $browser.div(:class => 'form__errors').exist?
 		puts "\tError during Booking we retry"
 		File.open("run.log", 'a') {|f| f.write("\tError during Booking we retry\n") }
 		sleep 5
 		$browser.button(:class => 'progress-button__button').click
-		$browser.div(:class => 'progress-button__bar').wait_while_present
+		$browser.div(:class => 'progress-button__bar').wait_while_present(60)
 	end
 	
 	line = $browser.divs(:class => 'search__results--line-container ')
