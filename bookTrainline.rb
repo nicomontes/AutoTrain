@@ -137,7 +137,7 @@ end
 
 # Connect to Trainline account
 connect_me ENV["GOOGLE_EMAIL"], ENV["GOOGLE_PASSWORD"], ENV["GOOGLE_PIN"]
-sleep 5
+sleep 10
 
 # For trip
 # Try to buy a ticket every week during $moreDays
