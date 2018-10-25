@@ -39,7 +39,7 @@ You must to export variables for authentication.
 
 * GOOGLE_EMAIL : Your Google Email
 * GOOGLE_PASSWORD : Your password
-* GOOGLE_PIN : Your Secret for OTP. To get this code you need to go to Google Preferences and change your phone.
+* GOOGLE_PIN : Your Secret for OTP. To get this code you need to go to Google Preferences and change your phone. If you don't use 2 factor authentification set this variable with nothing ('').
 * SENDGRID_API_KEY : SendGrid API to send emails
 
 Example :
