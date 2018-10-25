@@ -54,43 +54,76 @@ All options are in Json file.
 Exemple :
 ```json
 {
-  "go" : {
-    "usual_from": "paris",
-    "usual_to": "st-etienne",
-    "from_option" : [],
-    "to_option" : [
-      "lyon",
-      "annemasse"
-    ],
-    "usual_departure_time_min": "18:00",
-    "usual_departure_time_max": "21:00",
-    "usual_day": "Fri"
-  },
-  "return" : {
-    "usual_from": "st-etienne",
-    "usual_to": "paris",
-    "from_option" : [
-      "lyon"
-    ],
-    "to_option" : [],
-    "usual_departure_time_min": "18:00",
-    "usual_departure_time_max": "21:00",
-    "usual_day": "Sun"
-  },
-  "special_trip": [
+  "trip" : [
     {
-      "date": "2017-04-22",
       "from": "paris",
       "to": "st-etienne",
-      "time_min": "17:00",
-      "time_max": "23:00"
+      "time_min": "16:00",
+      "time_max": "19:00",
+      "day": "Fri",
+      "trip" :
+        {
+          "from": "paris",
+          "to": "lyon",
+          "time_min": "16:00",
+          "time_max": "19:00",
+          "day": "Fri",
+          "trip" :
+            {
+              "from": "paris",
+              "to": "le-creusot-tgv",
+              "time_min": "16:00",
+              "time_max": "18:00",
+              "day": "Fri"
+            }
+        }
     },
     {
-      "date": "2017-02-19",
+      "from": "st-etienne",
+      "to": "paris",
+      "time_min": "17:00",
+      "time_max": "19:00",
+      "day": "Sun",
+      "trip" :
+        {
+          "from": "lyon",
+          "to": "paris",
+          "time_min": "18:00",
+          "time_max": "20:00",
+          "day": "Sun",
+          "trip" :
+            {
+              "from": "le-creusot-tgv",
+              "to": "paris",
+              "time_min": "18:00",
+              "time_max": "21:30",
+              "day": "Sun",
+              "trip" :
+                {
+                  "from": "st-etienne",
+                  "to": "paris",
+                  "time_min": "06:00",
+                  "time_max": "07:00",
+                  "day": "Mon"
+                }
+            }
+        }
+    }
+  ],
+  "special_trip" : [
+    {
+      "date": "2018-03-28",
       "from": "paris",
-      "to": "marseille",
+      "to": "lille",
       "time_min": "12:00",
-      "time_max": "13:00"
+      "time_max": "14:00"
+    },
+    {
+      "date": "2017-08-08",
+      "from": "st-etienne",
+      "to": "paris",
+      "time_min": "16:00",
+      "time_max": "23:00"
     }
   ]
 }
