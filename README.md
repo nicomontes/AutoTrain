@@ -129,9 +129,8 @@ Exemple :
 }
 ```
 
-* The two sections *go* and *return* is used for the usual path.
-  * *to_option* or *from_option* : City in options if Trainline don't find tickets for the usual departure or destination.
-  * *usual_day* : week days in this format : (Mon, Tue, Wed, Thu, Fri, Sat, Sun).
+* *to_option* or *from_option* : City in options if Trainline don't find tickets for the usual departure or destination.
+* *day* : week days in this format : (Mon, Tue, Wed, Thu, Fri, Sat, Sun).
 * *special_trip* : You can add special_trip to go on holiday, for example !
 
 # Use
