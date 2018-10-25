@@ -129,12 +129,14 @@ def connect_me (account, password, pin)
 			$browser.text_field(:name => 'password').set password
 			$browser.span(:text => 'Suivant').click
 			
-			$totp = ROTP::TOTP.new(pin)
+			unless pin == '' 
+				$totp = ROTP::TOTP.new(pin)
 			
-			$totpPin = $totp.now.to_s
-			$browser.text_field(:id => 'totpPin').wait_until_present
-			$browser.text_field(:id => 'totpPin').set $totpPin
-			$browser.span(:text => 'Suivant').click
+				$totpPin = $totp.now.to_s
+				$browser.text_field(:id => 'totpPin').wait_until_present
+				$browser.text_field(:id => 'totpPin').set $totpPin
+				$browser.span(:text => 'Suivant').click
+			end
 		end
 	end	
 end
